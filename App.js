@@ -1,21 +1,51 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { Component } from 'react';
+import { ActivityIndicator, FlatList, Text, View } from 'react-native';
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
-}
+export default class App extends Component {
+  constructor(props) {
+    super(props);
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+    this.state = {
+      data: [],
+      isLoading: true
+    };
+  }
+
+  async getUsers() {
+    try {
+      const response = await fetch('https://jsonplaceholder.typicode.com/users');
+      const json = await response.json();
+      this.setState({ data: json});
+    } catch (error) {
+      console.log(error);
+    } finally {
+      this.setState({ isLoading: false });
+    }
+  }
+
+  componentDidMount() {
+    this.getUsers();
+  }
+
+  render() {
+    const { data, isLoading } = this.state;
+
+    return (
+      <View style={{ flex: 4, padding: 50  }} >
+        {isLoading ? <ActivityIndicator/> : (
+          <FlatList
+            data={data}
+            keyExtractor={({ id }, index) => id}
+            renderItem={({ item }) => (
+              <Text > {"\n"}Name: {item.name},{"\n"}Email: {item.email},{"\n"}
+               Ciudad: {item.address.city},{"\n"}Nombre Compañia: {item.company.name} </Text>
+              
+              )}
+          />
+        )}
+      </View>
+    );
+  }
+  
+};
+
